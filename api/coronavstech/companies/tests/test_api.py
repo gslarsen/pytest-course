@@ -1,105 +1,99 @@
 import json
 import logging
-from unittest import TestCase
 
 import pytest
-from django.test import Client
 from django.urls import reverse
 
 from companies.models import Company
 
-
-@pytest.mark.django_db
-class BasicCompanyAPITestCase(TestCase):
-    def setUp(self) -> None:
-        self.client = Client()
-        self.companies_url = reverse("companies-list")
-
-    def tearDown(self) -> None:
-        pass
+companies_url = reverse("companies-list")
+pytestmark = pytest.mark.django_db
 
 
-class TestGetCompanies(BasicCompanyAPITestCase):
-    def test_zero_companies_should_return_empty_list(self) -> None:
-        response = self.client.get(self.companies_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(response.content), [])
-
-    def test_one_company_exists_should_succeed(self) -> None:
-        test_company = Company.objects.create(name="Amazon")
-        response = self.client.get(self.companies_url)
-        response_content = json.loads(response.content)[0]
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response_content.get("name"), test_company.name)
-        self.assertEqual(response_content.get("status"), "Hiring")
-        self.assertEqual(response_content.get("application_link"), "")
-        self.assertEqual(response_content.get("notes"), "")
-
-        test_company.delete()
+# -------------Test Get Companies---------------
+def test_zero_companies_should_return_empty_list(client) -> None:
+    response = client.get(companies_url)
+    assert response.status_code == 200
+    assert json.loads(response.content) == []
 
 
-class TestPostCompanies(BasicCompanyAPITestCase):
-    def test_create_company_without_arguments_should_fail(self) -> None:
-        response = self.client.post(path=self.companies_url)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            json.loads(response.content), {"name": ["This field is required."]}
-        )
-
-    def test_create_existing_company_should_fail(self) -> None:
-        Company.objects.create(name="Apple")
-        response = self.client.post(path=self.companies_url, data={"name": "Apple"})
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            json.loads(response.content),
-            {"name": ["company with this name already exists."]},
-        )
-
-    def test_create_company_with_only_name_all_fields_should_be_default(self) -> None:
-        response = self.client.post(
-            path=self.companies_url, data={"name": "test company"}
-        )
-        self.assertEqual(response.status_code, 201)
-        response_content = json.loads(response.content)
-        self.assertEqual(response_content.get("name"), "test company")
-        self.assertEqual(response_content.get("status"), "Hiring")
-        self.assertEqual(response_content.get("application_link"), "")
-        self.assertEqual(response_content.get("notes"), "")
-
-    def test_create_company_with_layoffs_status_should_succeed(self) -> None:
-        response = self.client.post(
-            path=self.companies_url, data={"name": "test company", "status": "Layoffs"}
-        )
-        self.assertEqual(response.status_code, 201)
-        response_content = json.loads(response.content)
-        self.assertEqual(response_content.get("status"), "Layoffs")
-
-    def test_create_company_with_wrong_status_should_fail(self) -> None:
-        response = self.client.post(
-            path=self.companies_url,
-            data={"name": "test company", "status": "wrongStatus"},
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("wrongStatus", str(response.content))
-        self.assertIn("is not a valid choice", str(response.content))
-
-    @pytest.mark.xfail
-    def test_should_be_ok_if_fails(self) -> None:
-        self.assertEqual(1, 2)
-
-    @pytest.mark.skip
-    def test_should_be_skipped(self) -> None:
-        self.assertEqual(1, 2)
-
-    def raise_covid_exception(self) -> None:
-        raise ValueError("Covid Exception")
-
-    def test_raise_covid_exception_should_pass(self) -> None:
-        with pytest.raises(ValueError) as e:
-            self.raise_covid_exception()
-        assert "Covid Exception" == str(e.value)
+def test_one_company_exists_should_succeed(client) -> None:
+    test_company = Company.objects.create(name="Amazon")
+    response = client.get(companies_url)
+    response_content = json.loads(response.content)[0]
+    assert response.status_code == 200
+    assert response_content.get("name") == test_company.name
+    assert response_content.get("status") == "Hiring"
+    assert response_content.get("application_link") == ""
+    assert response_content.get("notes") == ""
 
 
+# -------------Test Post Company---------------
+def test_create_company_without_arguments_should_fail(client) -> None:
+    response = client.post(path=companies_url)
+    assert response.status_code == 400
+    assert json.loads(response.content) == {"name": ["This field is required."]}
+
+
+def test_create_existing_company_should_fail(client) -> None:
+    Company.objects.create(name="Apple")
+    response = client.post(path=companies_url, data={"name": "Apple"})
+    assert response.status_code == 400
+    assert json.loads(response.content) == {
+        "name": ["company with this name already exists."]
+    }
+
+
+def test_create_company_with_only_name_all_fields_should_be_default(client) -> None:
+    response = client.post(path=companies_url, data={"name": "test company"})
+    assert response.status_code == 201
+    response_content = json.loads(response.content)
+    assert response_content.get("name") == "test company"
+    assert response_content.get("status") == "Hiring"
+    assert response_content.get("application_link") == ""
+    assert response_content.get("notes") == ""
+
+
+def test_create_company_with_layoffs_status_should_succeed(client) -> None:
+    response = client.post(
+        path=companies_url, data={"name": "test company", "status": "Layoffs"}
+    )
+    assert response.status_code == 201
+    response_content = json.loads(response.content)
+    assert response_content.get("status") == "Layoffs"
+
+
+def test_create_company_with_wrong_status_should_fail(client) -> None:
+    response = client.post(
+        path=companies_url,
+        data={"name": "test company", "status": "wrongStatus"},
+    )
+    assert response.status_code == 400
+    assert "wrongStatus" in str(response.content)
+    assert "is not a valid choice" in str(response.content)
+
+
+@pytest.mark.xfail
+def test_should_be_ok_if_fails() -> None:
+    assert 1 == 2
+
+
+@pytest.mark.skip
+def test_should_be_skipped() -> None:
+    assert 1 == 2
+
+
+def raise_covid_exception() -> None:
+    raise ValueError("Covid Exception")
+
+
+def test_raise_covid_exception_should_pass() -> None:
+    with pytest.raises(ValueError) as e:
+        raise_covid_exception()
+    assert "Covid Exception" == str(e.value)
+
+
+# -------------Test Various Logging---------------
 logger = logging.getLogger("COVID_LOGS")
 
 
