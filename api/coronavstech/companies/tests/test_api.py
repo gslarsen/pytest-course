@@ -75,9 +75,13 @@ class TestPostCompanies(BasicCompanyAPITestCase):
         self.assertIn("wrongStatus", str(response.content))
         self.assertIn("is not a valid choice", str(response.content))
 
+    @pytest.mark.xfail
+    def test_should_be_ok_if_fails(self) -> None:
+        self.assertEqual(1, 2)
 
-
-
+    @pytest.mark.skip
+    def test_should_be_skipped(self) -> None:
+        self.assertEqual(1, 2)
 
 
 
