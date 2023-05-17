@@ -119,8 +119,3 @@ def test_logged_info_level(caplog) -> None:
     with caplog.at_level(logging.INFO):
         logger.info("I am logging info level")
         assert "I am logging info level" in caplog.text
-
-
-
-
-
