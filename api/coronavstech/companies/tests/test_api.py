@@ -1,4 +1,5 @@
 import json
+import logging
 from unittest import TestCase
 
 import pytest
@@ -55,7 +56,9 @@ class TestPostCompanies(BasicCompanyAPITestCase):
         )
 
     def test_create_company_with_only_name_all_fields_should_be_default(self) -> None:
-        response = self.client.post(path=self.companies_url, data={"name": "test company"})
+        response = self.client.post(
+            path=self.companies_url, data={"name": "test company"}
+        )
         self.assertEqual(response.status_code, 201)
         response_content = json.loads(response.content)
         self.assertEqual(response_content.get("name"), "test company")
@@ -64,13 +67,18 @@ class TestPostCompanies(BasicCompanyAPITestCase):
         self.assertEqual(response_content.get("notes"), "")
 
     def test_create_company_with_layoffs_status_should_succeed(self) -> None:
-        response = self.client.post(path=self.companies_url, data={"name": "test company", "status": "Layoffs"})
+        response = self.client.post(
+            path=self.companies_url, data={"name": "test company", "status": "Layoffs"}
+        )
         self.assertEqual(response.status_code, 201)
         response_content = json.loads(response.content)
         self.assertEqual(response_content.get("status"), "Layoffs")
 
     def test_create_company_with_wrong_status_should_fail(self) -> None:
-        response = self.client.post(path=self.companies_url, data={"name": "test company", "status": "wrongStatus"})
+        response = self.client.post(
+            path=self.companies_url,
+            data={"name": "test company", "status": "wrongStatus"},
+        )
         self.assertEqual(response.status_code, 400)
         self.assertIn("wrongStatus", str(response.content))
         self.assertIn("is not a valid choice", str(response.content))
@@ -83,14 +91,34 @@ class TestPostCompanies(BasicCompanyAPITestCase):
     def test_should_be_skipped(self) -> None:
         self.assertEqual(1, 2)
 
+    def raise_covid_exception(self) -> None:
+        raise ValueError("Covid Exception")
+
+    def test_raise_covid_exception_should_pass(self) -> None:
+        with pytest.raises(ValueError) as e:
+            self.raise_covid_exception()
+        assert "Covid Exception" == str(e.value)
 
 
+logger = logging.getLogger("COVID_LOGS")
 
 
+def function_that_logs_something() -> None:
+    try:
+        raise ValueError("Covid Exception")
+    except ValueError as e:
+        logger.warning(f"I am logging {str(e)}")
 
 
+def test_logged_warning_level(caplog) -> None:
+    function_that_logs_something()
+    assert "I am logging Covid Exception" in caplog.text
 
 
+def test_logged_info_level(caplog) -> None:
+    with caplog.at_level(logging.INFO):
+        logger.info("I am logging info level")
+        assert "I am logging info level" in caplog.text
 
 
 
