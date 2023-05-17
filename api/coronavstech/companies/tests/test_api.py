@@ -9,11 +9,16 @@ from companies.models import Company
 
 
 @pytest.mark.django_db
-class TestGetCompanies(TestCase):
+class BasicCompanyAPITestCase(TestCase):
     def setUp(self) -> None:
         self.client = Client()
         self.companies_url = reverse("companies-list")
 
+    def tearDown(self) -> None:
+        pass
+
+
+class TestGetCompanies(BasicCompanyAPITestCase):
     def test_zero_companies_should_return_empty_list(self) -> None:
         response = self.client.get(self.companies_url)
         self.assertEqual(response.status_code, 200)
@@ -32,6 +37,8 @@ class TestGetCompanies(TestCase):
         test_company.delete()
 
 
+class TestPostCompanies(BasicCompanyAPITestCase):
+    pass
 
 
 
