@@ -10,6 +10,8 @@ pipelines:
             - pip install pipenv --upgrade
             - pipenv install --system
             - pytest api/coronavstech -vs --durations=0
-            
+            - pytest fibonacci -vs --durations=0
+
+
 
  
