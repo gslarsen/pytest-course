@@ -3,7 +3,7 @@ image: python:3.8.5
 pipelines:
   default:
       - step:
-          name: 'Django Company API tests'
+          name: 'API tests'
           caches:
             - pip
           script:
