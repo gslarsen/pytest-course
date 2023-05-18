@@ -5,7 +5,7 @@ import pytest
 from fibonacci.cached import fibonacci_cached, fibonacci_lru_cached
 from fibonacci.naive import fibonacci_naive
 
-
+# Cached solutions
 @pytest.mark.parametrize(
     "fib_func", [fibonacci_naive, fibonacci_cached, fibonacci_lru_cached]
 )
