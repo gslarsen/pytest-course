@@ -1,0 +1,14 @@
+image: python:3.8.5
+
+pipelines:
+  default:
+      - step:
+          name: 'Django Company API tests'
+          caches:
+            - pip
+          script:
+            - pip install pipenv --upgrade
+            - pipenv install --system
+            - pytest api/coronavstech -s -v --durations=0
+
+ 
