@@ -119,6 +119,16 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+# google discontinued use of allowing third party simple access to svcs - no longer worthwile w django -check course
+# for a work-around
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = ""
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_PASSWORD = ""
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
