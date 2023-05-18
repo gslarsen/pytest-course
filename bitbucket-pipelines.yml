@@ -10,7 +10,7 @@ pipelines:
             - pip install pipenv --upgrade
             - pipenv install --system
             - export PYTHONPATH=$PYTHONPATH
-            - export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+            - export DJANGO_SETTINGS_MODULE="api.coronavstech.coronavstech.settings"
             - pytest api/coronavstech -s -v --durations=0
 
  
