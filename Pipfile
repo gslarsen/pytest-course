@@ -11,6 +11,7 @@ black = "*"
 companies = "*"
 pytest-django = "*"
 pytest-env = "*"
+pytest-cov = "*"
 
 [dev-packages]
 
