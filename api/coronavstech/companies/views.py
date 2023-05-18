@@ -25,8 +25,8 @@ def send_company_email(request):
     send_mail(
         subject="My cool subject",
         message="My cool msg",
-        from_email="glarsen8172@gmail.com",
-        recipient_list=["glarsen8172@gmail.com"],
+        from_email="",
+        recipient_list=[""],
     )
     return Response(
         {"status": "success", "info": "email sent successfully"}, status=200
